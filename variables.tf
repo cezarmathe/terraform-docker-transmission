@@ -173,3 +173,11 @@ variable "container_name" {
   DESCRIPTION
   default     = ""
 }
+
+variable "use_ghcr" {
+  type        = bool
+  description = <<-DESCRIPTION
+  Whether to use GitHub container registry for getting the container image instead of Docker Hub.
+  DESCRIPTION
+  default     = false
+}

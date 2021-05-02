@@ -17,7 +17,7 @@ terraform {
 resource "random_uuid" "this" {}
 
 data "docker_registry_image" "this" {
-  name = "ghcr.io/linuxserver/transmission:${var.image_version}"
+  name = "%{ if var.use_ghcr }ghcr.io/%{ endif }linuxserver/transmission:${var.image_version}"
 }
 
 resource "docker_image" "this" {
