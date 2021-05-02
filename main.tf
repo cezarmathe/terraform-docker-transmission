@@ -14,6 +14,8 @@ terraform {
   required_version = ">= 0.14"
 }
 
+resource "random_uuid" "this" {}
+
 data "docker_registry_image" "this" {
   name = "ghcr.io/linuxserver/transmission:${var.image_version}"
 }
@@ -21,10 +23,6 @@ data "docker_registry_image" "this" {
 resource "docker_image" "this" {
   name          = data.docker_registry_image.this.name
   pull_triggers = [data.docker_registry_image.this.sha256_digest]
-}
-
-resource "random_uuid" "config_volume" {
-  count = var.create_config_volume ? ( var.config_volume_name == "" ? 1 : 0 ) : 0
 }
 
 resource "docker_volume" "config" {
@@ -35,10 +33,6 @@ resource "docker_volume" "config" {
   driver_opts = var.config_volume_driver_opts
 }
 
-resource "random_uuid" "watch_volume" {
-  count = var.create_watch_volume ? ( var.watch_volume_name == "" ? 1 : 0 ) : 0
-}
-
 resource "docker_volume" "watch" {
   count = var.create_watch_volume ? 1 : 0
 
@@ -47,20 +41,12 @@ resource "docker_volume" "watch" {
   driver_opts = var.watch_volume_driver_opts
 }
 
-resource "random_uuid" "downloads_volume" {
-  count = var.create_downloads_volume ? ( var.downloads_volume_name == "" ? 1 : 0 ) : 0
-}
-
 resource "docker_volume" "downloads" {
   count = var.create_downloads_volume ? 1 : 0
 
   name        = local.downloads_volume_name
   driver      = var.downloads_volume_driver
   driver_opts = var.downloads_volume_driver_opts
-}
-
-resource "random_uuid" "container_name" {
-  count = var.container_name == "" ? 1 : 0
 }
 
 resource "docker_container" "this" {
@@ -136,24 +122,24 @@ resource "docker_container" "this" {
 locals {
   config_volume_name = var.create_config_volume ? (
     var.config_volume_name != "" ? var.config_volume_name : (
-      "transmission_config_${random_uuid.config_volume[0].result}"
+      "transmission_config_${random_uuid.this.result}"
     )
   ) : ""
 
   watch_volume_name = var.create_watch_volume ? (
     var.watch_volume_name != "" ? var.watch_volume_name : (
-      "transmission_watch_${random_uuid.watch_volume[0].result}"
+      "transmission_watch_${random_uuid.this.result}"
     )
   ) : ""
 
   downloads_volume_name = var.create_downloads_volume ? (
     var.downloads_volume_name != "" ? var.downloads_volume_name : (
-      "transmission_downloads_${random_uuid.downloads_volume[0].result}"
+      "transmission_downloads_${random_uuid.this.result}"
     )
   ) : ""
 
   container_name = var.container_name != "" ? var.container_name : (
-    "transmission_${random_uuid.container_name[0].result}"
+    "transmission_${random_uuid.this.result}"
   )
 
   processed_user_volumes = [for user_volume in var.user_volumes : {
