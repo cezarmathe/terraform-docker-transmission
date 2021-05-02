@@ -24,48 +24,48 @@ resource "docker_image" "this" {
 }
 
 resource "random_uuid" "config_volume" {
-  count = var.create_config_volume ? 1 : 0
+  count = var.create_config_volume ? ( var.config_volume_name == "" ? 1 : 0 ) : 0
 }
 
 resource "docker_volume" "config" {
   count = var.create_config_volume ? 1 : 0
 
-  name        = "transmission_config_${random_uuid.config_volume.result[0]}"
+  name        = local.config_volume_name
   driver      = var.config_volume_driver
   driver_opts = var.config_volume_driver_opts
 }
 
 resource "random_uuid" "watch_volume" {
-  count = var.create_watch_volume ? 1 : 0
+  count = var.create_watch_volume ? ( var.watch_volume_name == "" ? 1 : 0 ) : 0
 }
 
 resource "docker_volume" "watch" {
   count = var.create_watch_volume ? 1 : 0
 
-  name        = "transmission_watch_${random_uuid.watch_volume.result[0]}"
+  name        = local.watch_volume_name
   driver      = var.watch_volume_driver
   driver_opts = var.watch_volume_driver_opts
 }
 
 resource "random_uuid" "downloads_volume" {
-  count = var.create_downloads_volume ? 1 : 0
+  count = var.create_downloads_volume ? ( var.downloads_volume_name == "" ? 1 : 0 ) : 0
 }
 
 resource "docker_volume" "downloads" {
   count = var.create_downloads_volume ? 1 : 0
 
-  name        = "transmission_downloads_${random_uuid.downloads_volume.result[0]}"
+  name        = local.downloads_volume_name
   driver      = var.downloads_volume_driver
   driver_opts = var.downloads_volume_driver_opts
 }
 
 resource "random_uuid" "container_name" {
-  count = var.create_downloads_volume ? 1 : 0
+  count = var.container_name == "" ? 1 : 0
 }
 
 resource "docker_container" "this" {
-  name  = var.container_name != "" ? var.container_name : "transmission_${random_uuid.container_name.result}"
-  image = docker_image.transmission.latest
+  name  = local.container_name
+  image = docker_image.this.latest
 
   env = [
     "PUID=${var.uid}",
@@ -134,6 +134,28 @@ resource "docker_container" "this" {
 }
 
 locals {
+  config_volume_name = var.create_config_volume ? (
+    var.config_volume_name != "" ? var.config_volume_name : (
+      "transmission_config_${random_uuid.config_volume[0].result}"
+    )
+  ) : ""
+
+  watch_volume_name = var.create_watch_volume ? (
+    var.watch_volume_name != "" ? var.watch_volume_name : (
+      "transmission_watch_${random_uuid.watch_volume[0].result}"
+    )
+  ) : ""
+
+  downloads_volume_name = var.create_downloads_volume ? (
+    var.downloads_volume_name != "" ? var.downloads_volume_name : (
+      "transmission_downloads_${random_uuid.downloads_volume[0].result}"
+    )
+  ) : ""
+
+  container_name = var.container_name != "" ? var.container_name : (
+    "transmission_${random_uuid.container_name[0].result}"
+  )
+
   processed_user_volumes = [for user_volume in var.user_volumes : {
     volume_name = user_volume.volume_name
     dir_name    = user_volume.dir_name != "" ? user_volume.dir_name : user_volume.volume_name
