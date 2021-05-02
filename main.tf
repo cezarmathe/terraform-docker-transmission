@@ -118,7 +118,24 @@ resource "docker_container" "this" {
     }
   }
 
+  # user-defined additional downloads volumes
+  dynamic "volumes" {
+    for_each = local.processed_user_volumes
+    iterator = volume
+    content {
+      volume_name    = volume.value.volume_name
+      container_path = "/downloads/${volume.value.dir_name}"
+    }
+  }
+
   must_run = true
   restart  = var.restart
   start    = var.start
+}
+
+locals {
+  processed_user_volumes = [for user_volume in var.user_volumes : {
+    volume_name = user_volume.volume_name
+    dir_name    = user_volume.dir_name != "" ? user_volume.dir_name : user_volume.volume_name
+  }]
 }

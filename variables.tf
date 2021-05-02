@@ -70,3 +70,16 @@ variable "restart" {
   DESCRIPTION
   default     = "unless-stopped"
 }
+
+variable "user_volumes" {
+  type        = list(object({
+    volume_name = string
+    dir_name    = string
+  }))
+  description = <<-DESCRIPTION
+  A list of additional user volumes to attach inside the downloads directory of the container. Each
+  volume will be attached to `/downloads/{dir_name}` if `dir_name` is not empty, or
+  `/downloads/volume_name` otherwise.
+  DESCRIPTION
+  default     = []
+}
