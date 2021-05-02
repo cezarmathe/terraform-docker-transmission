@@ -37,4 +37,4 @@ terraform.rc
 
 # ---
 
-creds.ini
+.terraform.lock.hcl
