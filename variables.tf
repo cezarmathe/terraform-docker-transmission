@@ -33,6 +33,7 @@ variable "image_version" {
   description = <<-DESCRIPTION
   Container image version. This module uses 'linuxserver/transmission'.
   DESCRIPTION
+  default     = "latest"
 }
 
 variable "username" {
