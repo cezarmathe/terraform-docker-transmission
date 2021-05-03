@@ -36,3 +36,8 @@ output "this_network_data" {
   DESCRIPTION
   value       = docker_container.this.network_data
 }
+
+output "this_uuid" {
+  description = "The random uuid used for naming the resources created by this module."
+  value       = random_uuid.this.result
+}
