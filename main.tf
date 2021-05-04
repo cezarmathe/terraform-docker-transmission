@@ -31,6 +31,15 @@ resource "docker_volume" "config" {
   name        = local.config_volume_name
   driver      = var.config_volume_driver
   driver_opts = var.config_volume_driver_opts
+
+  dynamic "labels" {
+    for_each = var.labels
+    iterator = label
+    content {
+      label = label.key
+      value = label.value
+    }
+  }
 }
 
 resource "docker_volume" "watch" {
@@ -39,6 +48,15 @@ resource "docker_volume" "watch" {
   name        = local.watch_volume_name
   driver      = var.watch_volume_driver
   driver_opts = var.watch_volume_driver_opts
+
+  dynamic "labels" {
+    for_each = var.labels
+    iterator = label
+    content {
+      label = label.key
+      value = label.value
+    }
+  }
 }
 
 resource "docker_volume" "downloads" {
@@ -47,6 +65,15 @@ resource "docker_volume" "downloads" {
   name        = local.downloads_volume_name
   driver      = var.downloads_volume_driver
   driver_opts = var.downloads_volume_driver_opts
+
+  dynamic "labels" {
+    for_each = var.labels
+    iterator = label
+    content {
+      label = label.key
+      value = label.value
+    }
+  }
 }
 
 resource "docker_container" "this" {
@@ -111,6 +138,15 @@ resource "docker_container" "this" {
     content {
       volume_name    = volume.value.volume_name
       container_path = "/downloads/${volume.value.dir_name}"
+    }
+  }
+
+  dynamic "labels" {
+    for_each = var.labels
+    iterator = label
+    content {
+      label = label.key
+      value = label.value
     }
   }
 

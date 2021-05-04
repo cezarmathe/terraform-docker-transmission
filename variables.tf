@@ -175,3 +175,9 @@ variable "use_ghcr" {
   DESCRIPTION
   default     = false
 }
+
+variable "labels" {
+  type        = map(string)
+  description = "Labels to attach to created resources that support labels."
+  default     = {}
+}
